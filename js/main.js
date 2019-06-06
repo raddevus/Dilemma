@@ -1,5 +1,6 @@
 //main.js
 
+var localScreenName = "";
 function initializeForm(){
 	setDefaultButton();
 	var screenName = getScreenName();
@@ -9,9 +10,14 @@ function initializeForm(){
 		$("#screenNameText").focus();
 		return;
 	}
+	localScreenName = screenName;
 	displayScreenName(screenName);
+	initializeGame();
+}
+
+function initializeGame(){
 	$("#joined").hide();
-	
+	$("#notJoined").show();
 }
 
 function setDefaultButton(){
@@ -41,9 +47,9 @@ function setScreenName(){
 	displayScreenName(screenName);
 	$('#screenNameText').val("");
 	$("#screenNameText").focus();
-	
+	initializeGame();
 	writeScreeNameToStorage(screenName);
-	
+	localScreenName = screenName;
 	// #### test code #######################
 	// alert(encodedVal);
 	// alert(getDecodedValue(encodedVal));
@@ -62,9 +68,6 @@ function getScreenName(){
 	if (screenName !== null){
 		screenName = getDecodedValue(screenName);
 	}
-	else{
-		
-	}
 	return screenName; // either a null or a valid value will be returned.
 }
 
@@ -82,6 +85,19 @@ function getDecodedValue(encodedValue){
 }
 
 function joinGame(){
+	var msg = localScreenName + " has joined the game.";
+	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
+}
+
+function game(){
+	this.round = 1;
+	this.allPlayers = [];
+	this.isStarted = false;
+}
+
+function player(){
+	this.screenName = "";
+	this.score = 0;
 }
