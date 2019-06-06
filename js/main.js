@@ -10,6 +10,7 @@ function initializeForm(){
 		return;
 	}
 	displayScreenName(screenName);
+	$("#joined").hide();
 	
 }
 
@@ -70,11 +71,17 @@ function getScreenName(){
 function getEncodedValue(clearText){
 	return btoa(encodeURI(clearText));
 }
+
 function getDecodedValue(encodedValue){
-		try {
-			return decodeURI(atob(encodedValue));
-		}
-		catch (e){
-			throw (e);
-		}
+	try {
+		return decodeURI(atob(encodedValue));
 	}
+	catch (e){
+		throw (e);
+	}
+}
+
+function joinGame(){
+	$("#notJoined").hide();
+	$("#joined").show();
+}
