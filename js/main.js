@@ -7,17 +7,16 @@ var firebaseConfig = null;
 
 function initializeForm(){
 	setDefaultButton();
-	var screenName = getScreenName();
 	initializeFirebase();
 	initializeGame();
-	if (screenName === null){
+	if (localScreenName === null){
 		$('#screenNameUnchosen').show();
 		$('#screenNameChosen').hide();
 		$("#screenNameText").focus();
 		return;
 	}
-	localScreenName = screenName;
-	displayScreenName(screenName);
+
+	displayScreenName(localScreenName);
 	
 }
 
@@ -33,13 +32,20 @@ function initializeFirebase(){
   };
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
+  
 }
 
 function initializeGame(){
 	$("#joined").hide();
 	$("#notJoined").show();
+	var screenName = getScreenName();
+	localScreenName = screenName;
+
 	database = firebase.database();
 	console.log("Got database");
+	
+	var currentGame = null;
+	manageGames();
 }
 
 function setDefaultButton(){
@@ -49,6 +55,37 @@ function setDefaultButton(){
     $('#button-screenName').click();
   }
 });
+}
+
+function manageGames(){
+	if (localScreenName !== null){
+		var allGames = firebase.database().ref('games/');
+		allGames.once('value', function(snapshot) {
+			if (snapshot.val() === null){
+				console.log("no games here");
+				// get key for new game
+				var gameKey = allGames.push().key;
+				console.log(gameKey);
+				var games = {};
+				currentGame = new Game();
+				currentGame.allPlayers.push(new Player(localScreenName));
+				
+				games['/games/' + gameKey] = currentGame;
+				database.ref().update(games);
+				//firebase.database().ref('games/' + gameKey);
+	
+			}
+			else{
+				snapshot.forEach(function(childSnapshot) {
+					var childKey = childSnapshot.key;
+					var childData = childSnapshot.val();
+					console.log(childKey);
+					console.log(childData);
+				});
+			}
+		
+		});
+	}
 }
 
 function displayScreenName(screenName){
@@ -69,8 +106,8 @@ function setScreenName(){
 	displayScreenName(screenName);
 	$('#screenNameText').val("");
 	$("#screenNameText").focus();
-	initializeGame();
 	writeScreeNameToStorage(screenName);
+	initializeGame();
 	localScreenName = screenName;
 	// #### test code #######################
 	// alert(encodedVal);
@@ -118,13 +155,13 @@ function joinGame(){
 	$("#joined").show();
 }
 
-function game(){
+function Game(){
 	this.round = 1;
 	this.allPlayers = [];
 	this.inProgress = false;
 }
 
-function player(){
-	this.screenName = "";
+function Player(screenName){
+	this.screenName = screenName;
 	this.score = 0;
 }
