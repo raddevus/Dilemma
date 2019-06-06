@@ -56,15 +56,19 @@ function setDefaultButton(){
   }
 });
 }
+var gameKey = null;
 
 function manageGames(){
+	var allPlayers = null;
+
 	if (localScreenName !== null){
 		var allGames = firebase.database().ref('games/');
+		
 		allGames.once('value', function(snapshot) {
 			if (snapshot.val() === null){
 				console.log("no games here");
 				// get key for new game
-				var gameKey = allGames.push().key;
+				gameKey = allGames.push().key;
 				console.log(gameKey);
 				var games = {};
 				currentGame = new Game();
@@ -72,20 +76,55 @@ function manageGames(){
 				
 				games['/games/' + gameKey] = currentGame;
 				database.ref().update(games);
-				//firebase.database().ref('games/' + gameKey);
-	
+				console.log('games/' + gameKey + "/allPlayers");
 			}
 			else{
+				var g = new Game();
+				var addNewPlayer = true;
+				
 				snapshot.forEach(function(childSnapshot) {
-					var childKey = childSnapshot.key;
+					gameKey = childSnapshot.key;
 					var childData = childSnapshot.val();
-					console.log(childKey);
+					console.log(gameKey);
 					console.log(childData);
+					
+					childData.allPlayers.forEach(function(player){
+						console.log(player.screenName);
+						if (player.screenName == localScreenName){
+							addNewPlayer = false;
+						}
+						console.log("player");
+						console.log(player);
+						g.allPlayers.push(new Player(player.screenName));
+						
+					});
+					
 				});
+				if (addNewPlayer){
+					var p = new Player(localScreenName);
+						console.log("p");
+						console.log(p);
+					g.allPlayers.push(p);
+				}		
+				var games = {};
+				games['/games/' + gameKey] = g;
+				console.log(g);
+				database.ref().update(games);
 			}
-		
-		});
+		}).then (setUpPlayerRef);
+
 	}
+}
+
+function setUpPlayerRef(){
+		var playersRef = 'games/' + gameKey +  "/allPlayers";
+		console.log("playersRef : " + playersRef);
+		allPlayers = firebase.database().ref(playersRef);
+		allPlayers.once('value').then(function(clipshot) {
+			console.log("running");
+			console.log(clipshot.val());
+		});
+
 }
 
 function displayScreenName(screenName){
