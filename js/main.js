@@ -120,7 +120,7 @@ function setUpPlayerRef(){
 		var playersRef = 'games/' + gameKey +  "/allPlayers";
 		console.log("playersRef : " + playersRef);
 		allPlayers = firebase.database().ref(playersRef);
-		allPlayers.once('value').then(function(clipshot) {
+		allPlayers.on('value', function(clipshot) {
 			console.log("running");
 			console.log(clipshot.val());
 		});
