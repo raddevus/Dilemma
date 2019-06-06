@@ -1,9 +1,14 @@
 //main.js
 
 var localScreenName = "";
+var game = {};
+var database = null;
+var firebaseConfig = null;
+
 function initializeForm(){
 	setDefaultButton();
 	var screenName = getScreenName();
+	initializeFirebase();
 	initializeGame();
 	if (screenName === null){
 		$('#screenNameUnchosen').show();
@@ -16,9 +21,25 @@ function initializeForm(){
 	
 }
 
+function initializeFirebase(){
+	firebaseConfig = {
+    apiKey: "AIzaSyCOxHx8_MFMH41jGkvJLxt6dksJpo3HrZA",
+    authDomain: "dilemmapuzzle.firebaseapp.com",
+    databaseURL: "https://dilemmapuzzle.firebaseio.com",
+    projectId: "dilemmapuzzle",
+    storageBucket: "dilemmapuzzle.appspot.com",
+    messagingSenderId: "721138909987",
+    appId: "1:721138909987:web:83babc149f824f44"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+}
+
 function initializeGame(){
 	$("#joined").hide();
 	$("#notJoined").show();
+	database = firebase.database();
+	console.log("Got database");
 }
 
 function setDefaultButton(){
@@ -100,7 +121,7 @@ function joinGame(){
 function game(){
 	this.round = 1;
 	this.allPlayers = [];
-	this.isStarted = false;
+	this.inProgress = false;
 }
 
 function player(){
