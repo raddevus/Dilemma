@@ -6,6 +6,7 @@ var database = null;
 var firebaseConfig = null;
 
 function initializeForm(){
+	removeAllPlayers();
 	setDefaultButton();
 	initializeFirebase();
 	initializeGame();
@@ -18,6 +19,10 @@ function initializeForm(){
 
 	displayScreenName(localScreenName);
 	
+}
+
+function removeAllPlayers(){
+	 $("#playerList").empty();
 }
 
 function initializeFirebase(){
@@ -121,14 +126,17 @@ function setUpPlayerRef(){
 		console.log("playersRef : " + playersRef);
 		allPlayers = firebase.database().ref(playersRef);
 		allPlayers.on('value', function(clipshot) {
-			console.log("running");
-			console.log(clipshot.val());
-			clipshot.val().forEach( function (player){
-			var o = new Option(player.screenName, player.screenName);
-			/// jquerify the DOM object 'o' so we can use the html method
-			$(o).html(player.screenName);
-			$("#playerList").append(o);
-			});
+			$("#playerList").empty();
+			if (clipshot.val() !== null){
+				console.log("running");
+				console.log(clipshot.val());
+				clipshot.val().forEach( function (player){
+				var o = new Option(player.screenName, player.screenName);
+				/// jquerify the DOM object 'o' so we can use the html method
+				$(o).html(player.screenName);
+				$("#playerList").append(o);
+				});
+			}
 		});
 
 }
