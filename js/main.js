@@ -4,6 +4,7 @@ var localScreenName = "";
 function initializeForm(){
 	setDefaultButton();
 	var screenName = getScreenName();
+	initializeGame();
 	if (screenName === null){
 		$('#screenNameUnchosen').show();
 		$('#screenNameChosen').hide();
@@ -12,7 +13,7 @@ function initializeForm(){
 	}
 	localScreenName = screenName;
 	displayScreenName(screenName);
-	initializeGame();
+	
 }
 
 function initializeGame(){
@@ -85,6 +86,11 @@ function getDecodedValue(encodedValue){
 }
 
 function joinGame(){
+	if (localScreenName === null || localScreenName === undefined || localScreenName === ""){
+		alert("You cannot join a game until you've created a Screen Name.");
+		$("#screenNameText").focus();
+		return;
+	}
 	var msg = localScreenName + " has joined the game.";
 	$('#joined').text(msg);
 	$("#notJoined").hide();
