@@ -57,9 +57,9 @@ function setDefaultButton(){
 });
 }
 var gameKey = null;
+var allPlayers = null;
 
 function manageGames(){
-	var allPlayers = null;
 
 	if (localScreenName !== null){
 		var allGames = firebase.database().ref('games/');
