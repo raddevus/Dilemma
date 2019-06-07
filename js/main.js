@@ -26,7 +26,7 @@ function initializeForm(){
 	setDefaultButton();
 	initializeFirebase();
 	allGames = firebase.database().ref('games/');
-	initializeGame(true);
+	initializeGame();
 	if (localScreenName === null){
 		$('#screenNameUnchosen').show();
 		$('#screenNameChosen').hide();
@@ -38,20 +38,21 @@ function initializeForm(){
 	
 }
 
-function initializeGame(resetGame){
+function initializeGame(){
 	$("#joined").hide();
 	$("#notJoined").show();
-	if (resetGame){
-		database = null;
-	}
-	var screenName = getScreenName();
-	localScreenName = screenName;
-	if (database == null){
-		database = firebase.database();
-		console.log("Got database");
-		manageGames();
-	}
 	
+	database = null;
+
+	resetScreenName();
+
+	database = firebase.database();
+	console.log("Got database");
+	manageGames();
+}
+
+function resetScreenName(){
+	localScreenName = getScreenName();
 }
 
 function manageGames(){
@@ -147,6 +148,7 @@ function joinGame(){
 
 	if  (addNewPlayer){
 		writePlayerToDB();
+		addNewPlayer = true;
 	}
 	setupPlayerRef();
 }
@@ -186,7 +188,7 @@ function setScreenName(){
 	$('#screenNameText').val("");
 	$("#screenNameText").focus();
 	writeScreeNameToStorage(screenName);
-	initializeGame(false);
+	resetScreenName();
 	// #### test code #######################
 	// alert(encodedVal);
 	// alert(getDecodedValue(encodedVal));
