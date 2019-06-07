@@ -1,5 +1,4 @@
 //main.js
-
 var localScreenName = "";
 var game = {};
 var database = null;
@@ -12,10 +11,20 @@ var databaseExists = false;
 var g = {};
 
 function initializeForm(){
+
+	game = {};
+
+	firebaseConfig = null;
+
+	gameKey = null;
+	allPlayers = null;
+	addNewPlayer = true;
+	databaseExists = false;
+	g = {};
 	removeAllPlayers();
 	setDefaultButton();
 	initializeFirebase();
-	initializeGame();
+	initializeGame(true);
 	if (localScreenName === null){
 		$('#screenNameUnchosen').show();
 		$('#screenNameChosen').hide();
@@ -46,17 +55,20 @@ function initializeFirebase(){
   
 }
 
-function initializeGame(){
+function initializeGame(resetGame){
 	$("#joined").hide();
 	$("#notJoined").show();
+	if (resetGame){
+		database = null;
+	}
 	var screenName = getScreenName();
 	localScreenName = screenName;
-
-	database = firebase.database();
-	console.log("Got database");
-	
-	var currentGame = null;
-	manageGames();
+	if (database == null){
+		database = firebase.database();
+		console.log("Got database");
+		var currentGame = null;
+		manageGames();
+	}
 }
 
 function setDefaultButton(){
@@ -70,27 +82,29 @@ function setDefaultButton(){
 
 function manageGames(){
 
-	if (localScreenName !== null){
-		var allGames = firebase.database().ref('games/');
-		
-		allGames.once('value', function(snapshot) {
-			if (snapshot.val() === null){
-				console.log("no games here");
-				// get key for new game
-				gameKey = allGames.push().key;
-				console.log(gameKey);
-				
-			}
-			else{
-				databaseExists = true;
-				g = new Game();
+	var allGames = firebase.database().ref('games/');
+	
+	allGames.once('value', function(snapshot) {
+		if (snapshot.val() === null){
+			console.log("no games here");
+			// get key for new game
+			gameKey = allGames.push().key;
+			console.log(gameKey);
+			var games = {};
+			currentGame = new Game();
+			games['/games/' + gameKey] = currentGame;
+			database.ref().update(games);
+		}
+		else{
+			g = new Game();
 
-				snapshot.forEach(function(childSnapshot) {
-					gameKey = childSnapshot.key;
-					var childData = childSnapshot.val();
-					console.log(gameKey);
-					console.log(childData);
-					
+			snapshot.forEach(function(childSnapshot) {
+				gameKey = childSnapshot.key;
+				var childData = childSnapshot.val();
+				console.log(gameKey);
+				console.log(childData);
+				
+				if (childData.allPlayers !== undefined){
 					childData.allPlayers.forEach(function(player){
 						console.log(player.screenName);
 						if (player.screenName == localScreenName){
@@ -100,16 +114,14 @@ function manageGames(){
 						console.log(player);
 						g.allPlayers.push(new Player(player.screenName));
 					});
-				});
-			}
-		}).then(setUpPlayerRef);
-
-	}
+				}
+			});
+		}
+	}).then(setUpPlayerRef);
 }
 
 function writePlayerToDB(){
-	if (databaseExists){
-		if (addNewPlayer){
+	if (addNewPlayer){
 			var p = new Player(localScreenName);
 			console.log("p");
 			console.log(p);
@@ -119,15 +131,6 @@ function writePlayerToDB(){
 		games['/games/' + gameKey] = g;
 		console.log(g);
 		database.ref().update(games);
-	}
-	else{
-		var games = {};
-		currentGame = new Game();
-		currentGame.allPlayers.push(new Player(localScreenName));
-		games['/games/' + gameKey] = currentGame;
-		database.ref().update(games);
-		console.log('games/' + gameKey + "/allPlayers");
-	}
 }
 
 function setUpPlayerRef(){
@@ -169,7 +172,7 @@ function setScreenName(){
 	$('#screenNameText').val("");
 	$("#screenNameText").focus();
 	writeScreeNameToStorage(screenName);
-	initializeGame();
+	initializeGame(false);
 	localScreenName = screenName;
 	// #### test code #######################
 	// alert(encodedVal);
