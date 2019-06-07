@@ -94,9 +94,9 @@ function joinGame(){
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
-
-	writePlayerToDB();
-	
+	if (addNewPlayer){
+		writePlayerToDB();
+	}
 	setupPlayerRef();
 }
 
@@ -112,6 +112,7 @@ function writePlayerToDB(){
 	console.log(currentGame);
 	console.log("database.ref().update(games)");
 	database.ref().update(games);
+	addNewPlayer = false;
 }
 
 function loadPlayers(snapshot){
@@ -139,8 +140,9 @@ function loadPlayers(snapshot){
 			//setupPlayerRef();
 			currentGame = new Game();
 		//initFBGamePath();
-		allPlayers.off("child_added", dbListener);
-		isPlayerRefValid = false;
+			allPlayers.off("child_added", dbListener);
+			isPlayerRefValid = false;
+			addNewPlayer = true;
 		}
 	});
 }
@@ -175,7 +177,7 @@ function handlePlayerRefresh(clipshot) {
 	}
 	else{
 		console.log("clipshot is null! - There are NO PLAYERS!");
-		
+		addNewPlayer = true;
 		
 	} 
 }
@@ -201,6 +203,7 @@ function setScreenName(){
 	$("#screenNameText").focus();
 	writeScreeNameToStorage(screenName);
 	resetScreenName();
+	addNewPlayer = true;
 	// #### test code #######################
 	// alert(encodedVal);
 	// alert(getDecodedValue(encodedVal));
