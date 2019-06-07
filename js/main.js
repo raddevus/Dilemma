@@ -10,6 +10,9 @@ var addNewPlayer = true;
 var databaseExists = false;
 var currentGame = null;
 var allGames = null; 
+var isPlayerRefValid = false;
+var dbListener = null;
+var playersRef = null;
 
 function initializeForm(){
 
@@ -48,26 +51,28 @@ function initializeGame(){
 
 	database = firebase.database();
 	console.log("Got database");
-	manageGames();
+	initFBGamePath();
 }
 
 function resetScreenName(){
 	localScreenName = getScreenName();
 }
 
-function manageGames(){
-
+function initFBGamePath(){
+	isPlayerRefValid = false;
 	allGames.once('value', function(snapshot) {
+		// If there is no game created...
 		if (snapshot.val() === null){
-			setupGame(snapshot);
+			createNewGame(snapshot);
 		}
 		else{
-			refreshPlayers(snapshot);
+			// ...otherwise there is a game created and it may have players.
+			loadPlayers(snapshot);
 		}
 	});//.then(setupPlayerRef);
 }
 
-function setupGame(snapshot){
+function createNewGame(snapshot){
 	
 	console.log("no games here");
 	// get key for new game
@@ -77,62 +82,6 @@ function setupGame(snapshot){
 	currentGame = new Game();
 	games['/games/' + gameKey] = currentGame;
 	database.ref().update(games);
-}
-
-function refreshPlayers(snapshot){
-	if (currentGame === null){
-		currentGame = new Game();
-	}
-
-	snapshot.forEach(function(playersSnapshot) {
-		gameKey = playersSnapshot.key;
-		var playersCollection = playersSnapshot.val();
-		console.log(gameKey);
-		console.log(playersCollection);
-		
-		if (playersCollection.allPlayers !== undefined){
-			playersCollection.allPlayers.forEach(function(player){
-				console.log(player.screenName);
-				if (player.screenName == localScreenName){
-					addNewPlayer = false;
-				}
-				console.log("player");
-				console.log(player);
-				currentGame.allPlayers.push(new Player(player.screenName));
-			});
-		}
-	});
-}
-
-function setupPlayerRef(){
-		var playersRef = 'games/' + gameKey +  "/allPlayers/";
-		console.log("playersRef : " + playersRef);
-		allPlayers = firebase.database().ref(playersRef);
-		allPlayers.on('value', handlePlayerRefresh);
-
-}
-
-function handlePlayerRefresh(clipshot) {
-	$("#playerList").empty();
-	if (clipshot.val() !== null){
-		console.log("running");
-		console.log(clipshot.val());
-		clipshot.val().forEach( function (player){
-			var o = new Option(player.screenName, player.screenName);
-			/// jquerify the DOM object 'o' so we can use the html method
-			$(o).html(player.screenName);
-			$("#playerList").append(o);
-		});
-	}
-	else{
-		console.log("clipshot is null!");
-		if (currentGame == null){
-			console.log("currentGame is null");
-			allGames.once('value', function(snapshot) {
-				setupGame(snapshot);
-			});
-		}
-	}
 }
 
 function joinGame(){
@@ -146,28 +95,91 @@ function joinGame(){
 	$("#notJoined").hide();
 	$("#joined").show();
 
-	if  (addNewPlayer){
-		writePlayerToDB();
-		addNewPlayer = true;
-	}
+	writePlayerToDB();
+	
 	setupPlayerRef();
 }
 
 function writePlayerToDB(){
-	if (addNewPlayer){
-			var p = new Player(localScreenName);
-			console.log("p");
-			console.log(p);
+	var p = new Player(localScreenName);
+	console.log("p");
+	console.log(p);
+
+	currentGame.allPlayers.push(p);
+
+	var games = {};
+	games['/games/' + gameKey] = currentGame;
+	console.log(currentGame);
+	console.log("database.ref().update(games)");
+	database.ref().update(games);
+}
+
+function loadPlayers(snapshot){
+	snapshot.forEach(function(playersSnapshot) {
+		gameKey = playersSnapshot.key;
+		var playersCollection = playersSnapshot.val();
+		console.log(gameKey);
+		console.log(playersCollection);
 		if (currentGame === null){
 			currentGame = new Game();
 		}
-			currentGame.allPlayers.push(p);
+		if (playersCollection.allPlayers !== undefined){
+			playersCollection.allPlayers.forEach(function(player){
+				console.log(player.screenName);
+				if (player.screenName == localScreenName){
+					addNewPlayer = false;
+				}
+				console.log("player");
+				console.log(player);
+				currentGame.allPlayers.push(new Player(player.screenName));
+			});
 		}
-		var games = {};
-		games['/games/' + gameKey] = currentGame;
-		console.log(currentGame);
-		database.ref().update(games);
+		else{
+			// there are no player refs
+			//setupPlayerRef();
+			currentGame = new Game();
+		//initFBGamePath();
+		allPlayers.off("child_added", dbListener);
+		isPlayerRefValid = false;
+		}
+	});
 }
+
+function setupPlayerRef(){
+	if (!isPlayerRefValid){
+		playersRef = 'games/' + gameKey +  "/allPlayers/";
+		console.log("playersRef : " + playersRef);
+		allPlayers = firebase.database().ref(playersRef);
+		dbListener = allPlayers.on('value', handlePlayerRefresh);
+		isPlayerRefValid = true;
+	}
+}
+
+function handlePlayerRefresh(clipshot) {
+	console.log("handlePlayerRefresh");
+	$("#playerList").empty();
+	currentGame.allPlayers = [];
+	/*allGames.once('value', function(snapshot) {
+		loadPlayers(snapshot);
+	});*/
+	if (clipshot.val() !== null){
+		console.log("running");
+		console.log(clipshot.val());
+		clipshot.val().forEach( function (player){
+			var o = new Option(player.screenName, player.screenName);
+			/// jquerify the DOM object 'o' so we can use the html method
+			$(o).html(player.screenName);
+			$("#playerList").append(o);
+			currentGame.allPlayers.push(new Player(player.screenName));
+		});
+	}
+	else{
+		console.log("clipshot is null! - There are NO PLAYERS!");
+		
+		
+	} 
+}
+
 
 function displayScreenName(screenName){
 	var msg = "Your Screen Name is saved as : " + screenName;
