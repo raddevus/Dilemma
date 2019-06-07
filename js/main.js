@@ -5,6 +5,12 @@ var game = {};
 var database = null;
 var firebaseConfig = null;
 
+var gameKey = null;
+var allPlayers = null;
+var addNewPlayer = true;
+var databaseExists = false;
+var g = {};
+
 function initializeForm(){
 	removeAllPlayers();
 	setDefaultButton();
@@ -61,8 +67,6 @@ function setDefaultButton(){
   }
 });
 }
-var gameKey = null;
-var allPlayers = null;
 
 function manageGames(){
 
@@ -75,18 +79,12 @@ function manageGames(){
 				// get key for new game
 				gameKey = allGames.push().key;
 				console.log(gameKey);
-				var games = {};
-				currentGame = new Game();
-				currentGame.allPlayers.push(new Player(localScreenName));
 				
-				games['/games/' + gameKey] = currentGame;
-				database.ref().update(games);
-				console.log('games/' + gameKey + "/allPlayers");
 			}
 			else{
-				var g = new Game();
-				var addNewPlayer = true;
-				
+				databaseExists = true;
+				g = new Game();
+
 				snapshot.forEach(function(childSnapshot) {
 					gameKey = childSnapshot.key;
 					var childData = childSnapshot.val();
@@ -101,23 +99,34 @@ function manageGames(){
 						console.log("player");
 						console.log(player);
 						g.allPlayers.push(new Player(player.screenName));
-						
 					});
-					
 				});
-				if (addNewPlayer){
-					var p = new Player(localScreenName);
-						console.log("p");
-						console.log(p);
-					g.allPlayers.push(p);
-				}		
-				var games = {};
-				games['/games/' + gameKey] = g;
-				console.log(g);
-				database.ref().update(games);
 			}
-		}).then (setUpPlayerRef);
+		}).then(setUpPlayerRef);
 
+	}
+}
+
+function writePlayerToDB(){
+	if (databaseExists){
+		if (addNewPlayer){
+			var p = new Player(localScreenName);
+			console.log("p");
+			console.log(p);
+			g.allPlayers.push(p);
+		}
+		var games = {};
+		games['/games/' + gameKey] = g;
+		console.log(g);
+		database.ref().update(games);
+	}
+	else{
+		var games = {};
+		currentGame = new Game();
+		currentGame.allPlayers.push(new Player(localScreenName));
+		games['/games/' + gameKey] = currentGame;
+		database.ref().update(games);
+		console.log('games/' + gameKey + "/allPlayers");
 	}
 }
 
@@ -206,6 +215,7 @@ function joinGame(){
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
+	writePlayerToDB();
 }
 
 function Game(){
