@@ -41,10 +41,14 @@ function initializeForm(){
 	
 }
 
-function initializeGame(){
+function displayNotJoined(){
 	$("#joined").hide();
 	$("#notJoined").show();
-	
+
+}
+
+function initializeGame(){
+	displayNotJoined();
 	database = null;
 
 	resetScreenName();
@@ -140,7 +144,9 @@ function loadPlayers(snapshot){
 			//setupPlayerRef();
 			currentGame = new Game();
 		//initFBGamePath();
-			allPlayers.off("child_added", dbListener);
+			if (allPlayers !== null){
+				allPlayers.off("child_added", dbListener);
+			}
 			isPlayerRefValid = false;
 			addNewPlayer = true;
 		}
@@ -178,10 +184,15 @@ function handlePlayerRefresh(clipshot) {
 	else{
 		console.log("clipshot is null! - There are NO PLAYERS!");
 		addNewPlayer = true;
+		displayNotJoined();
 		
 	} 
 }
 
+function deleteGame(){
+	allGames.remove();
+	displayNotJoined();
+}
 
 function displayScreenName(screenName){
 	var msg = "Your Screen Name is saved as : " + screenName;
