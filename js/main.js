@@ -95,10 +95,20 @@ function joinGame(){
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
+	checkForAddPlayer();
 	if (addNewPlayer){
 		writePlayerToDB();
 	}
 	setupPlayerRef();
+}
+
+function checkForAddPlayer(){
+	for (let x = 0; x < currentGame.allPlayers.length;x++){
+		if (currentGame.allPlayers[x].screenName == globalScreenName){
+			addNewPlayer = false;
+			return;
+		}
+	}
 }
 
 function writePlayerToDB(){
