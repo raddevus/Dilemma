@@ -1,5 +1,5 @@
 //main.js
-var localScreenName = "";
+var globalScreenName = "";
 
 var database = null;
 var firebaseConfig = null;
@@ -28,14 +28,14 @@ function initializeForm(){
 	initializeFirebase();
 	allGamesRef = firebase.database().ref('games/');
 	initializeGame();
-	if (localScreenName === null){
+	if (globalScreenName === null){
 		$('#screenNameUnchosen').show();
 		$('#screenNameChosen').hide();
 		$("#screenNameText").focus();
 		return;
 	}
 
-	displayScreenName(localScreenName);
+	displayScreenName(globalScreenName);
 	
 }
 
@@ -49,15 +49,15 @@ function initializeGame(){
 	displayNotJoined();
 	database = null;
 
-	resetScreenName();
+	updateGlobalScreenName();
 
 	database = firebase.database();
 	console.log("Got database");
 	initFBGamePath();
 }
 
-function resetScreenName(){
-	localScreenName = getScreenName();
+function updateGlobalScreenName(){
+	globalScreenName = getScreenName();
 }
 
 function initFBGamePath(){
@@ -87,12 +87,12 @@ function createNewGame(snapshot){
 }
 
 function joinGame(){
-	if (localScreenName === null || localScreenName === undefined || localScreenName === ""){
+	if (globalScreenName === null || globalScreenName === undefined || globalScreenName === ""){
 		alert("You cannot join a game until you've created a Screen Name.");
 		$("#screenNameText").focus();
 		return;
 	}
-	var msg = localScreenName + " has joined the game.";
+	var msg = globalScreenName + " has joined the game.";
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
@@ -103,7 +103,7 @@ function joinGame(){
 }
 
 function writePlayerToDB(){
-	var p = new Player(localScreenName);
+	var p = new Player(globalScreenName);
 	console.log("p");
 	console.log(p);
 
@@ -129,7 +129,7 @@ function loadPlayers(snapshot){
 		if (playersCollection.allPlayers !== undefined){
 			playersCollection.allPlayers.forEach(function(player){
 				console.log(player.screenName);
-				if (player.screenName == localScreenName){
+				if (player.screenName == globalScreenName){
 					addNewPlayer = false;
 				}
 				console.log("player");
@@ -210,7 +210,7 @@ function setScreenName(){
 	$('#screenNameText').val("");
 	$("#screenNameText").focus();
 	writeScreeNameToStorage(screenName);
-	resetScreenName();
+	updateGlobalScreenName();
 	addNewPlayer = true;
 	// #### test code #######################
 	// alert(encodedVal);
