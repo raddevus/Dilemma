@@ -42,7 +42,6 @@ function initializeForm(){
 function displayNotJoined(){
 	$("#joined").hide();
 	$("#notJoined").show();
-
 }
 
 function initializeGame(){
@@ -71,7 +70,7 @@ function initFBGamePath(){
 			// ...otherwise there is a game created and it may have players.
 			loadPlayers(snapshot);
 		}
-	});//.then(setupPlayerRef);
+	});
 }
 
 function createNewGame(snapshot){
@@ -141,7 +140,7 @@ function loadPlayers(snapshot){
 			// there are no player refs
 			//setupPlayerRef();
 			currentGame = new Game();
-		//initFBGamePath();
+
 			if (allPlayersRef !== null){
 				allPlayersRef.off("child_added", dbListener);
 			}
@@ -165,9 +164,7 @@ function handlePlayerRefresh(clipshot) {
 	console.log("handlePlayerRefresh");
 	$("#playerList").empty();
 	currentGame.allPlayers = [];
-	/*allGamesRef.once('value', function(snapshot) {
-		loadPlayers(snapshot);
-	});*/
+
 	if (clipshot.val() !== null){
 		console.log("running");
 		console.log(clipshot.val());
