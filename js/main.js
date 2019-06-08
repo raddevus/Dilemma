@@ -5,11 +5,10 @@ var database = null;
 var firebaseConfig = null;
 
 var gameKey = null;
-var allPlayers = null;
+var allPlayersRef = null;
 var addNewPlayer = true;
-var databaseExists = false;
 var currentGame = null;
-var allGames = null; 
+var allGamesRef = null;
 var isPlayerRefValid = false;
 var dbListener = null;
 var playersRef = null;
@@ -21,14 +20,13 @@ function initializeForm(){
 	firebaseConfig = null;
 	
 	gameKey = null;
-	allPlayers = null;
+	allPlayersRef = null;
 	addNewPlayer = true;
-	databaseExists = false;
 	currentGame = null;
 	removeAllPlayers();
 	setDefaultButton();
 	initializeFirebase();
-	allGames = firebase.database().ref('games/');
+	allGamesRef = firebase.database().ref('games/');
 	initializeGame();
 	if (localScreenName === null){
 		$('#screenNameUnchosen').show();
@@ -64,7 +62,7 @@ function resetScreenName(){
 
 function initFBGamePath(){
 	isPlayerRefValid = false;
-	allGames.once('value', function(snapshot) {
+	allGamesRef.once('value', function(snapshot) {
 		// If there is no game created...
 		if (snapshot.val() === null){
 			createNewGame(snapshot);
@@ -80,7 +78,7 @@ function createNewGame(snapshot){
 	
 	console.log("no games here");
 	// get key for new game
-	gameKey = allGames.push().key;
+	gameKey = allGamesRef.push().key;
 	console.log(gameKey);
 	var games = {};
 	currentGame = new Game();
@@ -144,8 +142,8 @@ function loadPlayers(snapshot){
 			//setupPlayerRef();
 			currentGame = new Game();
 		//initFBGamePath();
-			if (allPlayers !== null){
-				allPlayers.off("child_added", dbListener);
+			if (allPlayersRef !== null){
+				allPlayersRef.off("child_added", dbListener);
 			}
 			isPlayerRefValid = false;
 			addNewPlayer = true;
@@ -157,8 +155,8 @@ function setupPlayerRef(){
 	if (!isPlayerRefValid){
 		playersRef = 'games/' + gameKey +  "/allPlayers/";
 		console.log("playersRef : " + playersRef);
-		allPlayers = firebase.database().ref(playersRef);
-		dbListener = allPlayers.on('value', handlePlayerRefresh);
+		allPlayersRef = firebase.database().ref(playersRef);
+		dbListener = allPlayersRef.on('value', handlePlayerRefresh);
 		isPlayerRefValid = true;
 	}
 }
@@ -167,7 +165,7 @@ function handlePlayerRefresh(clipshot) {
 	console.log("handlePlayerRefresh");
 	$("#playerList").empty();
 	currentGame.allPlayers = [];
-	/*allGames.once('value', function(snapshot) {
+	/*allGamesRef.once('value', function(snapshot) {
 		loadPlayers(snapshot);
 	});*/
 	if (clipshot.val() !== null){
@@ -185,12 +183,11 @@ function handlePlayerRefresh(clipshot) {
 		console.log("clipshot is null! - There are NO PLAYERS!");
 		addNewPlayer = true;
 		displayNotJoined();
-		
 	} 
 }
 
 function deleteGame(){
-	allGames.remove();
+	allGamesRef.remove();
 	displayNotJoined();
 }
 
