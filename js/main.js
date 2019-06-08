@@ -12,6 +12,7 @@ var allGamesRef = null;
 var isPlayerRefValid = false;
 var dbListener = null;
 var playersRef = null;
+var games = {};
 
 function initializeForm(){
 
@@ -79,8 +80,12 @@ function createNewGame(snapshot){
 	// get key for new game
 	gameKey = allGamesRef.push().key;
 	console.log(gameKey);
-	var games = {};
+
 	currentGame = new Game();
+	updateFbGames();
+}
+
+function updateFbGames(){
 	games['/games/' + gameKey] = currentGame;
 	database.ref().update(games);
 }
@@ -95,6 +100,8 @@ function joinGame(){
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
+	$("#button-startGame").addClass("enabled");
+	$("#button-startGame").removeClass("disabled");
 	checkForAddPlayer();
 	if (addNewPlayer){
 		writePlayerToDB();
@@ -118,11 +125,10 @@ function writePlayerToDB(){
 
 	currentGame.allPlayers.push(p);
 
-	var games = {};
-	games['/games/' + gameKey] = currentGame;
+	updateFbGames();
 	console.log(currentGame);
 	console.log("database.ref().update(games)");
-	database.ref().update(games);
+	
 	addNewPlayer = false;
 }
 
@@ -191,6 +197,11 @@ function handlePlayerRefresh(clipshot) {
 		addNewPlayer = true;
 		displayNotJoined();
 	} 
+}
+
+function startGame(){
+	currentGame.inProgress = true;
+	updateFbGames();
 }
 
 function deleteGame(){
