@@ -13,6 +13,8 @@ var isPlayerRefValid = false;
 var dbListener = null;
 var playersRef = null;
 var games = {};
+var gameProgressRef = null;
+var gameProgressListener = null;
 
 function initializeForm(){
 
@@ -90,6 +92,24 @@ function updateFbGames(){
 	database.ref().update(games);
 }
 
+function watchGameProgress(){
+	gameProgressRef = database.ref('games/' + gameKey + '/inProgress/');
+	gameProgressListener = gameProgressRef.on('value', handleGameProgressChange);
+}
+
+function handleGameProgressChange(snapshot){
+	if (snapshot.val() !== null){
+		var inProgress = snapshot.val();
+		console.log(inProgress);
+		if (inProgress){
+			disableButton("#button-startGame");
+		}
+		else{
+			enableButton("#button-startGame");
+		}
+	}
+}
+
 function joinGame(){
 	if (globalScreenName === null || globalScreenName === undefined || globalScreenName === ""){
 		alert("You cannot join a game until you've created a Screen Name.");
@@ -100,13 +120,23 @@ function joinGame(){
 	$('#joined').text(msg);
 	$("#notJoined").hide();
 	$("#joined").show();
-	$("#button-startGame").addClass("enabled");
-	$("#button-startGame").removeClass("disabled");
+	enableButton("#button-startGame");
 	checkForAddPlayer();
 	if (addNewPlayer){
 		writePlayerToDB();
 	}
 	setupPlayerRef();
+	watchGameProgress();
+}
+
+function enableButton(buttonSelector){
+	$(buttonSelector).addClass("enabled");
+	$(buttonSelector).removeClass("disabled");
+}
+
+function disableButton(buttonSelector){
+	$(buttonSelector).addClass("disabled");
+	$(buttonSelector).removeClass("enabled");
 }
 
 function checkForAddPlayer(){
@@ -201,7 +231,9 @@ function handlePlayerRefresh(clipshot) {
 
 function startGame(){
 	currentGame.inProgress = true;
+	gameProgressRef.off('value',gameProgressListener);
 	updateFbGames();
+	watchGameProgress();
 }
 
 function deleteGame(){
