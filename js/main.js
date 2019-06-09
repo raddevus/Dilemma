@@ -39,12 +39,6 @@ function initializeForm(){
 	}
 
 	displayScreenName(globalScreenName);
-	
-}
-
-function displayNotJoined(){
-	$("#joined").hide();
-	$("#notJoined").show();
 }
 
 function initializeGame(){
@@ -116,10 +110,7 @@ function joinGame(){
 		$("#screenNameText").focus();
 		return;
 	}
-	var msg = globalScreenName + " has joined the game.";
-	$('#joined').text(msg);
-	$("#notJoined").hide();
-	$("#joined").show();
+	displayJoinedGame();
 	enableButton("#button-startGame");
 	checkForAddPlayer();
 	if (addNewPlayer){
@@ -127,6 +118,18 @@ function joinGame(){
 	}
 	setupPlayerRef();
 	watchGameProgress();
+}
+
+function displayJoinedGame(){
+	var msg = globalScreenName + " has joined the game.";
+	$('#joined').text(msg);
+	$("#notJoined").hide();
+	$("#joined").show();
+}
+
+function displayNotJoined(){
+	$("#joined").hide();
+	$("#notJoined").show();
 }
 
 function enableButton(buttonSelector){
