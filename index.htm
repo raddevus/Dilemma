@@ -16,12 +16,24 @@
 
 
 <form class="container-fluid" class="mt-3" >
-	
-	<div id="screenNameUnchosen" class="form-group row alert alert-danger" role="alert">
-		Please create a Screen Name so you may play the game.
-	</div>
-	<div id="screenNameChosen" class="form-group row alert alert-success" role="alert">
-		Your Scren Name is: 
+
+	<div class="form-group row">
+		<div class="col">
+		<div id="screenNameUnchosen" class="form-group row alert alert-danger" role="alert">
+			Please create a Screen Name so you may play the game.
+		</div>
+		<div id="screenNameChosen" class="form-group row alert alert-success" role="alert">
+			Your Scren Name is:
+		</div>
+		</div>
+		<div class="col">
+			<div id="notJoined" class="form-group row alert alert-danger" role="alert">
+					Please press the button to join the game.
+			</div>
+			<div id="joined" class="form-group row alert alert-success" role="alert">
+				You have joined the game.
+			</div>
+		</div>
 	</div>
 	<div class="form-group row">
 		<div class="input-group mb-3">
@@ -30,12 +42,6 @@
 			<button class="btn btn-outline-primary" type="button" id="button-screenName" onclick="setScreenName()">Save</button>
 		</div>
 		</div>
-	</div>
-	<div id="notJoined" class="form-group row alert alert-danger" role="alert">
-			Please press the button to join the game.
-	</div>
-	<div id="joined" class="form-group row alert alert-success" role="alert">
-		You have joined the game.
 	</div>
 	<div class="form-group row">
 		<button class="btn btn-outline-secondary" type="button" id="button-joinGame" onclick="joinGame()">Join Game</button>
