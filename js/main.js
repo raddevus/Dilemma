@@ -113,6 +113,43 @@ function vote(){
 	$("#button-vote").text("Round " + currentGame.round);
 }
 
+// ################### SETUP TIMER ##########################
+// Set the date we're counting down to
+var futureTime = null; // Number(new Date()) + 5000;
+var countDownDate = null; // new Date(futureTime);
+var intervalHandle = null;
+
+function startCountdown(){
+	showButton("#countdown");
+	$("#countdown").show();
+	futureTime = Number(new Date()) + 5500;
+	countdownDate = new Date(Number(futureTime));
+	intervalHandle = setInterval (updateTimer, 200);
+}
+
+function updateTimer(){
+	// Get today's date and time
+  var now = new Date();
+    
+  // Find the distance between now and the count down date
+  
+  var distance = (Number(new Date()) - futureTime) / 1000;
+  //console.log("distance : " + distance);
+  //var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  // Output the result in an element with id="demo"
+  $("#countdown").text("You have " + Math.abs(distance) + " to press the Round X button");
+    
+  // If the count down is over, write some text 
+  if (distance > 0) {
+    clearInterval(intervalHandle);
+    hideButton("#countdown");
+	$("#countdown").hide();
+	roundTimerRunningRef.set(false);
+  }
+}
+
+// ##########################################################
+
 function watchRoundTimer(){
 	console.log("in watchRoundTimer...");
 	roundTimerRunningRef = database.ref('games/' + gameKey + '/isRoundTimerRunning/');
@@ -132,6 +169,7 @@ function handleRoundTimer(snapshot){
 		if (isRoundTimerRunning){
 			console.log("show the round timer button!");
 			showButton("#button-vote");
+			startCountdown();
 		}
 		else{
 			console.log("hide the round timer button!");
