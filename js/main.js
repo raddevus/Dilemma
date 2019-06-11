@@ -15,6 +15,8 @@ var playersRef = null;
 var games = {};
 var gameProgressRef = null;
 var gameProgressListener = null;
+var roundTimerRunningRef = null;
+var roundTimerListener = null;
 
 function initializeForm(){
 
@@ -97,9 +99,43 @@ function handleGameProgressChange(snapshot){
 		console.log(inProgress);
 		if (inProgress){
 			disableButton("#button-startGame");
+			watchRoundTimer();
 		}
 		else{
 			enableButton("#button-startGame");
+			console.log("no longer watching round timer.");
+			stopWatchingRoundTimer();
+		}
+	}
+}
+
+function vote(){
+	$("#button-vote").text("Round " + currentGame.round);
+}
+
+function watchRoundTimer(){
+	console.log("in watchRoundTimer...");
+	roundTimerRunningRef = database.ref('games/' + gameKey + '/isRoundTimerRunning/');
+	roundTimerListener = roundTimerRunningRef.on('value', handleRoundTimer);
+}
+
+function stopWatchingRoundTimer(){
+	if (roundTimerRunningRef !== null && roundTimerRunningRef !== undefined){
+		roundTimerRunningRef.off('value',roundTimerListener);
+	}
+}
+
+function handleRoundTimer(snapshot){
+	if (snapshot.val() !== null){
+		var isRoundTimerRunning = snapshot.val();
+		console.log("isRoundTimerRunning : " + isRoundTimerRunning);
+		if (isRoundTimerRunning){
+			console.log("show the round timer button!");
+			showButton("#button-vote");
+		}
+		else{
+			console.log("hide the round timer button!");
+			hideButton("#button-vote");
 		}
 	}
 }
@@ -141,6 +177,15 @@ function disableButton(buttonSelector){
 	$(buttonSelector).addClass("disabled");
 	$(buttonSelector).removeClass("enabled");
 }
+
+function hideButton(buttonSelector){
+	$(buttonSelector).addClass("d-none");
+}
+
+function showButton(buttonSelector){
+	$(buttonSelector).removeClass("d-none");
+}
+
 
 function checkForAddPlayer(){
 	for (let x = 0; x < currentGame.allPlayers.length;x++){
@@ -331,6 +376,7 @@ function Game(){
 	this.round = 1;
 	this.allPlayers = [];
 	this.inProgress = false;
+	this.isRoundTimerRunning = false;
 }
 
 function Player(screenName){
