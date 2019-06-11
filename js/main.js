@@ -315,11 +315,30 @@ function handlePlayerRefresh(clipshot) {
 	} 
 }
 
+var roundCounter = 0;
+var completeGameInterval = null;
+
+function runCompleteGame(){
+	roundTimerRunningRef.set(true);
+	completeGameInterval = setTimeout(runRound,500);
+}
+
+function runRound(){
+	if (roundCounter < 5){
+		roundCounter++;
+		$("#button-vote").text("Round " + roundCounter);
+		watchGameProgress();
+		roundTimerRunningRef.set(true);
+		completeGameInterval = setTimeout(runRound,15000);
+	}
+}
+
 function startGame(){
 	currentGame.inProgress = true;
 	gameProgressRef.off('value',gameProgressListener);
 	updateFbGames();
-	watchGameProgress();
+	runCompleteGame();
+	//watchGameProgress();
 }
 
 function deleteGame(){
