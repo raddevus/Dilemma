@@ -124,6 +124,9 @@ function startCountdown(){
 	$("#countdown").show();
 	futureTime = Number(new Date()) + 5500;
 	countdownDate = new Date(Number(futureTime));
+	if (intervalHandle !== null){
+		clearInterval(intervalHandle);
+	}
 	intervalHandle = setInterval (updateTimer, 200);
 }
 
@@ -138,10 +141,9 @@ function updateTimer(){
   //var seconds = Math.floor((distance % (1000 * 60)) / 1000);
   // Output the result in an element with id="demo"
   $("#countdown").text("You have " + Math.abs(distance) + " to press the Round X button");
-    
+
   // If the count down is over, write some text 
   if (distance > 0) {
-    clearInterval(intervalHandle);
     hideButton("#countdown");
 	$("#countdown").hide();
 	roundTimerRunningRef.set(false);
@@ -319,6 +321,7 @@ var roundCounter = 0;
 var completeGameInterval = null;
 
 function runCompleteGame(){
+	roundCounter = 0;
 	roundTimerRunningRef.set(true);
 	completeGameInterval = setTimeout(runRound,500);
 }
@@ -329,7 +332,10 @@ function runRound(){
 		$("#button-vote").text("Round " + roundCounter);
 		watchGameProgress();
 		roundTimerRunningRef.set(true);
-		completeGameInterval = setTimeout(runRound,15000);
+		completeGameInterval = setTimeout(runRound,10000);
+	}
+	else{
+		gameProgressRef.set(false);
 	}
 }
 
@@ -337,8 +343,8 @@ function startGame(){
 	currentGame.inProgress = true;
 	gameProgressRef.off('value',gameProgressListener);
 	updateFbGames();
+	gameProgressRef.on('value',gameProgressListener);
 	runCompleteGame();
-	//watchGameProgress();
 }
 
 function deleteGame(){
