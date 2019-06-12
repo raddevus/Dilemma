@@ -145,9 +145,6 @@ function updateTimer(){
 
   // If the count down is over, write some text 
   if (distance > 0) {
-	  if (roundCounter < MAX_ROUNDS){
-		$("#nextRound").removeClass("d-none");
-	  }
 	clearInterval(intervalHandle);
 	intervalHandle = null;
     hideButton("#countdown");
@@ -176,12 +173,16 @@ function handleRoundTimer(snapshot){
 		console.log("isRoundTimerRunning : " + isRoundTimerRunning);
 		if (isRoundTimerRunning){
 			console.log("show the round timer button!");
+			$("#nextRound").addClass("d-none");
 			showButton("#button-vote");
 			startCountdown();
 		}
 		else{
 			console.log("hide the round timer button!");
 			hideButton("#button-vote");
+			if (roundCounter < MAX_ROUNDS){
+				$("#nextRound").removeClass("d-none");
+			}
 		}
 	}
 }
@@ -336,7 +337,6 @@ function runRound(){
 	if (roundCounter < MAX_ROUNDS){
 		roundCounter++;
 		$("#button-vote").text("Round " + roundCounter);
-		$("#nextRound").addClass("d-none");
 		watchGameProgress();
 		roundTimerRunningRef.set(true);
 		completeGameInterval = setTimeout(runRound,10000);
