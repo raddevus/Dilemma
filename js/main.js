@@ -1,4 +1,6 @@
 //main.js
+
+var MAX_ROUNDS = 5;
 var globalScreenName = "";
 
 var database = null;
@@ -131,9 +133,8 @@ function startCountdown(){
 }
 
 function updateTimer(){
-	// Get today's date and time
-  var now = new Date();
-    
+
+	$("#nextRound").addClass("d-none");
   // Find the distance between now and the count down date
   
   var distance = (Number(new Date()) - futureTime) / 1000;
@@ -144,6 +145,11 @@ function updateTimer(){
 
   // If the count down is over, write some text 
   if (distance > 0) {
+	  if (roundCounter < MAX_ROUNDS){
+		$("#nextRound").removeClass("d-none");
+	  }
+	clearInterval(intervalHandle);
+	intervalHandle = null;
     hideButton("#countdown");
 	$("#countdown").hide();
 	roundTimerRunningRef.set(false);
@@ -327,15 +333,18 @@ function runCompleteGame(){
 }
 
 function runRound(){
-	if (roundCounter < 5){
+	if (roundCounter < MAX_ROUNDS){
 		roundCounter++;
 		$("#button-vote").text("Round " + roundCounter);
+		$("#nextRound").addClass("d-none");
 		watchGameProgress();
 		roundTimerRunningRef.set(true);
 		completeGameInterval = setTimeout(runRound,10000);
 	}
 	else{
 		gameProgressRef.set(false);
+		// We are done so do not display the message about the next round starting
+		$("#nextRound").addClass("d-none");
 	}
 }
 
