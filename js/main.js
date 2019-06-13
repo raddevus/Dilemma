@@ -123,7 +123,6 @@ var intervalHandle = null;
 
 function startCountdown(){
 	showButton("#countdown");
-	$("#countdown").show();
 	futureTime = Number(new Date()) + 5500;
 	countdownDate = new Date(Number(futureTime));
 	if (intervalHandle !== null){
@@ -148,7 +147,6 @@ function updateTimer(){
 	clearInterval(intervalHandle);
 	intervalHandle = null;
     hideButton("#countdown");
-	$("#countdown").hide();
 	roundTimerRunningRef.set(false);
   }
 }
