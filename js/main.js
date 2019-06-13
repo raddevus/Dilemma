@@ -108,11 +108,11 @@ function handleGameProgressChange(snapshot){
 			watchRoundTimer();
 		}
 		else{
-			// Game is OVER!!! (not running)
+			// Game OVER!!! (not running)
+			hideButton("#nextRound");
 			enableButton("#button-startGame");
 			console.log("no longer watching round timer.");
 			stopWatchingRoundTimer();
-			hideButton("#nextRound");
 			if (roundRef !== null){
 				roundRef.off('value',roundRefListener);
 			}
@@ -129,9 +129,6 @@ function handleRoundChange(snapshot){
 	if (snapshot.val() !== null){
 		remoteRoundValue = snapshot.val();
 		$("#button-vote").text("Round " + remoteRoundValue);
-		if (roundCounter < MAX_ROUNDS){
-			showButton("#nextRound");
-		}
 	}
 }
 
@@ -148,6 +145,7 @@ var intervalHandle = null;
 
 function startCountdown(){
 	showButton("#countdown");
+	hideButton("#nextRound");
 	futureTime = Number(new Date()) + 5500;
 	countdownDate = new Date(Number(futureTime));
 	if (intervalHandle !== null){
@@ -158,13 +156,8 @@ function startCountdown(){
 
 function updateTimer(){
 
-  hideButton("#nextRound");
-  // Find the distance between now and the count down date
-  
   var distance = (Number(new Date()) - futureTime) / 1000;
-  //console.log("distance : " + distance);
-  //var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  // Output the result in an element with id="demo"
+
   $("#countdown").text("You have " + Math.abs(distance) + " to press the Round " + remoteRoundValue +" button");
 
   // If the count down is over, write some text 
@@ -172,6 +165,7 @@ function updateTimer(){
 	clearInterval(intervalHandle);
 	intervalHandle = null;
     hideButton("#countdown");
+	showButton("#nextRound");
 	roundTimerRunningRef.set(false);
 	if (roundCounter < MAX_ROUNDS){
 		roundCounter++;
@@ -201,7 +195,6 @@ function handleRoundTimer(snapshot){
 		console.log("isRoundTimerRunning : " + isRoundTimerRunning);
 		if (isRoundTimerRunning){
 			console.log("show the round timer button!");
-			hideButton("#nextRound");
 			showButton("#button-vote");
 			startCountdown();
 		}
@@ -370,8 +363,6 @@ function runRound(){
 	}
 	else{
 		gameProgressRef.set(false);
-		// We are done so do not display the message about the next round starting
-		$("#nextRound").addClass("d-none");
 	}
 }
 
