@@ -114,7 +114,7 @@ function handleGameProgressChange(snapshot){
 			stopWatchingRoundTimer();
 			hideButton("#nextRound");
 			if (roundRef !== null){
-				roundRef.off();
+				roundRef.off('value',roundRefListener);
 			}
 		}
 	}
@@ -129,6 +129,9 @@ function handleRoundChange(snapshot){
 	if (snapshot.val() !== null){
 		remoteRoundValue = snapshot.val();
 		$("#button-vote").text("Round " + remoteRoundValue);
+		if (roundCounter < MAX_ROUNDS){
+			showButton("#nextRound");
+		}
 	}
 }
 
@@ -171,7 +174,6 @@ function updateTimer(){
     hideButton("#countdown");
 	roundTimerRunningRef.set(false);
 	if (roundCounter < MAX_ROUNDS){
-		showButton("#nextRound");
 		roundCounter++;
 		roundRef.set(roundCounter);
 		$("#button-vote").text("Round " + roundCounter);
@@ -206,9 +208,6 @@ function handleRoundTimer(snapshot){
 		else{
 			console.log("hide the round timer button!");
 			hideButton("#button-vote");
-			if (roundCounter < MAX_ROUNDS){
-				showButton("#nextRound");
-			}
 		}
 	}
 }
