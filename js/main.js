@@ -19,6 +19,9 @@ var gameProgressRef = null;
 var gameProgressListener = null;
 var roundTimerRunningRef = null;
 var roundTimerListener = null;
+var roundRef = null;
+var roundRefListener = null;
+var remoteRoundValue = 0;
 
 function initializeForm(){
 
@@ -101,6 +104,7 @@ function handleGameProgressChange(snapshot){
 		console.log(inProgress);
 		if (inProgress){
 			disableButton("#button-startGame");
+			watchRound();
 			watchRoundTimer();
 		}
 		else{
@@ -109,9 +113,24 @@ function handleGameProgressChange(snapshot){
 			console.log("no longer watching round timer.");
 			stopWatchingRoundTimer();
 			hideButton("#nextRound");
+			if (roundRef !== null){
+				roundRef.off();
+			}
 		}
 	}
 }
+
+function watchRound(){
+	roundRef = database.ref('games/' + gameKey + '/round/');
+	roundRefListener = roundRef.on('value', handleRoundChange);
+}
+
+function handleRoundChange(snapshot){
+	if (snapshot.val() !== null){
+		remoteRoundValue = snapshot.val();
+	}
+}
+
 
 function vote(){
 	$("#button-vote").text("Round " + currentGame.round);
@@ -142,7 +161,7 @@ function updateTimer(){
   //console.log("distance : " + distance);
   //var seconds = Math.floor((distance % (1000 * 60)) / 1000);
   // Output the result in an element with id="demo"
-  $("#countdown").text("You have " + Math.abs(distance) + " to press the Round X button");
+  $("#countdown").text("You have " + Math.abs(distance) + " to press the Round " + remoteRoundValue +" button");
 
   // If the count down is over, write some text 
   if (distance > 0) {
@@ -152,6 +171,9 @@ function updateTimer(){
 	roundTimerRunningRef.set(false);
 	if (roundCounter < MAX_ROUNDS){
 		showButton("#nextRound");
+		roundCounter++;
+		roundRef.set(roundCounter);
+		$("#button-vote").text("Round " + roundCounter);
 	}
   }
 }
@@ -338,11 +360,13 @@ function runCompleteGame(){
 
 function runRound(){
 	if (roundCounter < MAX_ROUNDS){
-		roundCounter++;
+		//roundCounter++;
+		//roundRef.set(roundCounter);
 		$("#button-vote").text("Round " + roundCounter);
 		watchGameProgress();
 		roundTimerRunningRef.set(true);
 		completeGameInterval = setTimeout(runRound,10000);
+
 	}
 	else{
 		gameProgressRef.set(false);
