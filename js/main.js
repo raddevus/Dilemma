@@ -1,6 +1,6 @@
 //main.js
 
-var MAX_ROUNDS = 5;
+var MAX_ROUNDS = 6;
 var globalScreenName = "";
 
 var database = null;
@@ -21,7 +21,7 @@ var roundTimerRunningRef = null;
 var roundTimerListener = null;
 var roundRef = null;
 var roundRefListener = null;
-var remoteRoundValue = 0;
+var remoteRoundValue = 1;
 
 function initializeForm(){
 
@@ -128,12 +128,13 @@ function watchRound(){
 function handleRoundChange(snapshot){
 	if (snapshot.val() !== null){
 		remoteRoundValue = snapshot.val();
+		$("#button-vote").text("Round " + remoteRoundValue);
 	}
 }
 
 
 function vote(){
-	$("#button-vote").text("Round " + currentGame.round);
+	$("#button-vote").text("clicked!");
 }
 
 // ################### SETUP TIMER ##########################
@@ -349,11 +350,11 @@ function handlePlayerRefresh(clipshot) {
 	} 
 }
 
-var roundCounter = 0;
+var roundCounter = 1;
 var completeGameInterval = null;
 
 function runCompleteGame(){
-	roundCounter = 0;
+	roundCounter = 1;
 	roundTimerRunningRef.set(true);
 	completeGameInterval = setTimeout(runRound,500);
 }
