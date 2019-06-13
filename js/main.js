@@ -104,9 +104,11 @@ function handleGameProgressChange(snapshot){
 			watchRoundTimer();
 		}
 		else{
+			// Game is OVER!!! (not running)
 			enableButton("#button-startGame");
 			console.log("no longer watching round timer.");
 			stopWatchingRoundTimer();
+			hideButton("#nextRound");
 		}
 	}
 }
@@ -133,7 +135,7 @@ function startCountdown(){
 
 function updateTimer(){
 
-	$("#nextRound").addClass("d-none");
+  hideButton("#nextRound");
   // Find the distance between now and the count down date
   
   var distance = (Number(new Date()) - futureTime) / 1000;
@@ -148,6 +150,9 @@ function updateTimer(){
 	intervalHandle = null;
     hideButton("#countdown");
 	roundTimerRunningRef.set(false);
+	if (roundCounter < MAX_ROUNDS){
+		showButton("#nextRound");
+	}
   }
 }
 
@@ -171,7 +176,7 @@ function handleRoundTimer(snapshot){
 		console.log("isRoundTimerRunning : " + isRoundTimerRunning);
 		if (isRoundTimerRunning){
 			console.log("show the round timer button!");
-			$("#nextRound").addClass("d-none");
+			hideButton("#nextRound");
 			showButton("#button-vote");
 			startCountdown();
 		}
@@ -179,7 +184,7 @@ function handleRoundTimer(snapshot){
 			console.log("hide the round timer button!");
 			hideButton("#button-vote");
 			if (roundCounter < MAX_ROUNDS){
-				$("#nextRound").removeClass("d-none");
+				showButton("#nextRound");
 			}
 		}
 	}
