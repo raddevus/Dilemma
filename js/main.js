@@ -268,11 +268,19 @@ function writePlayerToDB(){
 
 	currentGame.allPlayers.push(p);
 
-	updateFbGames();
+	//updateFbGames();
+	updatePlayers(p);
 	console.log(currentGame);
 	console.log("database.ref().update(games)");
 	
 	addNewPlayer = false;
+}
+
+function updatePlayers(player){
+	if (allPlayersRef === null){
+		setupPlayerRef();
+	}
+	allPlayersRef.push(player);
 }
 
 function loadPlayers(snapshot){
