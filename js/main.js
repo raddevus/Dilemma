@@ -286,22 +286,30 @@ function updatePlayers(player){
 function loadPlayers(snapshot){
 	snapshot.forEach(function(playersSnapshot) {
 		gameKey = playersSnapshot.key;
+		console.log("playersSnapshot.val()")
+		console.log(playersSnapshot.val());
+		
 		var playersCollection = playersSnapshot.val();
+		console.log(playersCollection.allPlayers);
+		for(let key in playersCollection.allPlayers){
+			console.log("key : " + key);
+			console.log(playersCollection.allPlayers[key]["screenName"]);
+		}
 		console.log(gameKey);
 		console.log(playersCollection);
+		
 		if (currentGame === null){
 			currentGame = new Game();
 		}
-		if (playersCollection.allPlayers !== undefined){
-			playersCollection.allPlayers.forEach(function(player){
-				console.log(player.screenName);
-				if (player.screenName == globalScreenName){
+		if (playersCollection !== undefined){
+			for(let key in playersCollection.allPlayers){
+				if (playersCollection.allPlayers[key]["screenName"] == globalScreenName){
 					addNewPlayer = false;
 				}
 				console.log("player");
-				console.log(player);
-				currentGame.allPlayers.push(new Player(player.screenName));
-			});
+				console.log(playersCollection.allPlayers[key]);
+				currentGame.allPlayers.push(new Player(playersCollection.allPlayers[key]["screenName"]));
+			}
 		}
 		else{
 			// there are no player refs
@@ -335,13 +343,17 @@ function handlePlayerRefresh(clipshot) {
 	if (clipshot.val() !== null){
 		console.log("running");
 		console.log(clipshot.val());
-		clipshot.val().forEach( function (player){
-			var o = new Option(player.screenName, player.screenName);
+		
+		var players = clipshot.val();
+		for (let key in players){
+			console.log("players key : "+ key);
+			console.log(players[key]["screenName"]);
+			var o = new Option(players[key]["screenName"], players[key]["screenName"]);
 			/// jquerify the DOM object 'o' so we can use the html method
-			$(o).html(player.screenName);
+			$(o).html(players[key]["screenName"]);
 			$("#playerList").append(o);
-			currentGame.allPlayers.push(new Player(player.screenName));
-		});
+			currentGame.allPlayers.push(new Player(players[key]["screenName"]));
+		}
 	}
 	else{
 		console.log("clipshot is null! - There are NO PLAYERS!");
