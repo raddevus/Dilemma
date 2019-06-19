@@ -3,9 +3,8 @@ I have created a fully working prototype which doesn't implement all game rule l
 
 If the user has never created a screen name then the game will look like this upon visiting the site.
 
-<img src="https://files.slack.com/files-pri/TF8M27Y3G-FKPSPMS64/image.png" />
+<img src="https://slack-files.com/TF8M27Y3G-FKPSPMS64-d3e8748af0" />
 
-image.png
 
 User will type a screen name and press <ENTER> or click the [Save] button.
 
