@@ -24,6 +24,7 @@ var roundRefListener = null;
 var remoteRoundValue = 1;
 var localPlayer = null;
 var localPlayerRef = null;
+var players = null;
 
 function initializeForm(){
 
@@ -118,6 +119,11 @@ function handleGameProgressChange(snapshot){
 			if (roundRef !== null){
 				roundRef.off('value',roundRefListener);
 			}
+			if (players != null){
+				for (var pcount = 0; pcount < players.length; pcount++){
+					console.log(players[pcount].screenName  + " : " + players[pcount].score);
+				}
+			}
 		}
 	}
 }
@@ -137,7 +143,7 @@ function handleRoundChange(snapshot){
 
 function vote(){
 	$("#button-vote").text("clicked!");
-	localPlayer.score += 10;
+	localPlayer.score += 1;
 	updatePlayerScore();
 }
 
@@ -361,7 +367,7 @@ function handlePlayerRefresh(clipshot) {
 		console.log("running");
 		console.log(clipshot.val());
 		
-		var players = clipshot.val();
+		players = clipshot.val();
 		for (let key in players){
 			console.log("players key : "+ key);
 			console.log(players[key]["screenName"]);
