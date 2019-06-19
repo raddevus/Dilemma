@@ -379,7 +379,7 @@ function handlePlayerRefresh(clipshot) {
 			}
 			var o = new Option(players[key]["screenName"], players[key]["screenName"]);
 			/// jquerify the DOM object 'o' so we can use the html method
-			$(o).html(players[key]["screenName"]);
+			$(o).html(players[key]["screenName"] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "<strong>score</strong>: " + players[key]["score"]);
 			$("#playerList").append(o);
 			currentGame.allPlayers.push(new Player(players[key]["screenName"]));
 		}
