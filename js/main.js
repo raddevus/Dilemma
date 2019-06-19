@@ -22,6 +22,8 @@ var roundTimerListener = null;
 var roundRef = null;
 var roundRefListener = null;
 var remoteRoundValue = 1;
+var localPlayer = null;
+var localPlayerRef = null;
 
 function initializeForm(){
 
@@ -135,6 +137,8 @@ function handleRoundChange(snapshot){
 
 function vote(){
 	$("#button-vote").text("clicked!");
+	localPlayer.score += 10;
+	updatePlayerScore();
 }
 
 // ################### SETUP TIMER ##########################
@@ -262,6 +266,7 @@ function checkForAddPlayer(){
 }
 
 function writePlayerToDB(){
+	console.log("writePLayerToDB()");
 	var p = new Player(globalScreenName);
 	console.log("p");
 	console.log(p);
@@ -277,10 +282,21 @@ function writePlayerToDB(){
 }
 
 function updatePlayers(player){
+	
+	if (localPlayer === null){
+		console.log("### localPlayer is valid! ###");
+		localPlayer = player;
+	}
+	
 	if (allPlayersRef === null){
 		setupPlayerRef();
 	}
 	allPlayersRef.push(player);
+}
+
+function updatePlayerScore(){
+	console.log(localPlayer);
+	localPlayerRef.set(localPlayer);
 }
 
 function loadPlayers(snapshot){
@@ -304,6 +320,7 @@ function loadPlayers(snapshot){
 		if (playersCollection !== undefined){
 			for(let key in playersCollection.allPlayers){
 				if (playersCollection.allPlayers[key]["screenName"] == globalScreenName){
+					localPlayerRef = firebase.database().ref('games/' + gameKey + '/allPlayers/' + key);
 					addNewPlayer = false;
 				}
 				console.log("player");
@@ -348,6 +365,12 @@ function handlePlayerRefresh(clipshot) {
 		for (let key in players){
 			console.log("players key : "+ key);
 			console.log(players[key]["screenName"]);
+			if (players[key]["screenName"] == globalScreenName){
+				localPlayerRef = firebase.database().ref('games/' + gameKey + '/allPlayers/' + key);
+				localPlayer = players[key];
+				console.log(" localPlayer ----> " );
+				console.log(localPlayer);
+			}
 			var o = new Option(players[key]["screenName"], players[key]["screenName"]);
 			/// jquerify the DOM object 'o' so we can use the html method
 			$(o).html(players[key]["screenName"]);
